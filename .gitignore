@@ -1,0 +1,25 @@
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Virtual environments
+.venv/
+venv/
+
+# Large ML artifacts and datasets
+datasets/
+*.pt
+*.pth
+*.onnx
+
+# Generated runtime data
+output/
+outputs/
+uploads/
+input/
+
+# OS/editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

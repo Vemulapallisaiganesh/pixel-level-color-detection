@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pixel - Image Processor</title>
+    <style>
+        /* Base reset and responsive page foundation */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1a2642 100%);
+            color: #e2e8f0;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .navbar {
+            background: #111827;
+            border-bottom: 1px solid #1e293b;
+            padding: 16px 0;
+            margin-bottom: 40px;
+        }
+
+        .navbar-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #ffffff;
+            letter-spacing: 0.6px;
+            text-transform: uppercase;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav-links a {
+            color: #cbd5e1;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+
+        .nav-links a:hover {
+            background: #1e293b;
+            color: #60a5fa;
+        }
+
+        .nav-links a.active {
+            background: #0ea5e9;
+            color: white;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 36px;
+            color: #60a5fa;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            color: #cbd5e1;
+        }
+
+        .controls {
+            background: #111827;
+            border: 1px solid #1e293b;
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .control-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            align-items: end;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            color: #cbd5e1;
+            font-size: 14px;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select {
+            padding: 10px 12px;
+            background: #0f172a;
+            border: 1px solid #1e293b;
+            border-radius: 4px;
+            color: #e2e8f0;
+            font-size: 14px;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #0ea5e9;
+            box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
+        }
+
+        .slider-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .slider-group input[type="range"] {
+            flex: 1;
+            height: 6px;
+            cursor: pointer;
+            accent-color: #0ea5e9;
+        }
+
+        .slider-value {
+            min-width: 60px;
+            text-align: right;
+            color: #60a5fa;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background: #22c55e;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #16a34a;
+        }
+
+        .btn-primary:disabled {
+            background: #64748b;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: #0ea5e9;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #0284c7;
+        }
+
+        .btn-secondary:disabled {
+            background: #64748b;
+            cursor: not-allowed;
+        }
+
+        .btn-success {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #d97706;
+        }
+
+        .btn-success:disabled {
+            background: #64748b;
+            cursor: not-allowed;
+        }
+
+        .preview-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .preview {
+            background: #111827;
+            border: 1px solid #1e293b;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .preview-header {
+            background: #0f172a;
+            padding: 12px 16px;
+            border-bottom: 1px solid #1e293b;
+            color: #60a5fa;
+            font-weight: 600;
+        }
+
+        .preview-body {
+            padding: 16px;
+            min-height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #0b1220;
+        }
+
+        .preview img {
+            max-width: 100%;
+            max-height: 100%;
+            border-radius: 4px;
+        }
+
+        .placeholder {
+            color: #64748b;
+            text-align: center;
+        }
+
+        .info-box {
+            background: #0f172a;
+            border-left: 4px solid #0ea5e9;
+            padding: 16px;
+            border-radius: 4px;
+            margin-top: 12px;
+            color: #cbd5e1;
+            font-size: 14px;
+        }
+
+        .spinner {
+            border: 3px solid #1e293b;
+            border-top: 3px solid #0ea5e9;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .status {
+            padding: 12px 16px;
+            border-radius: 4px;
+            margin-top: 16px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .status.success {
+            background: #065f46;
+            color: #86efac;
+            border: 1px solid #16a34a;
+            display: block;
+        }
+
+        .status.error {
+            background: #7f1d1d;
+            color: #fca5a5;
+            border: 1px solid #dc2626;
+            display: block;
+        }
+
+        .status.info {
+            background: #0c2340;
+            color: #7dd3fc;
+            border: 1px solid #0ea5e9;
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .preview-section {
+                grid-template-columns: 1fr;
+            }
+
+            .control-group {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .metrics-section {
+            background: #111827;
+            border: 1px solid #1e293b;
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 24px;
+            display: none;
+        }
+
+        .metrics-section.show {
+            display: block;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+        }
+
+        .metric-card {
+            background: #0f172a;
+            border-left: 4px solid #0ea5e9;
+            padding: 16px;
+            border-radius: 4px;
+        }
+
+        .metric-label {
+            color: #cbd5e1;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .metric-value {
+            color: #60a5fa;
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        .metric-unit {
+            color: #64748b;
+            font-size: 12px;
+        }
+
+        /* Light theme override (keeps behavior, changes visual style only). */
+        body {
+            font-family: Georgia, "Times New Roman", serif;
+            background: linear-gradient(180deg, #f6f8f1 0%, #edf3dc 100%);
+            color: #1f2937;
+        }
+
+        .navbar {
+            background: #274f3f;
+            border-bottom: 1px solid #1b3b2f;
+            border-radius: 10px;
+        }
+
+        .logo,
+        .header h1,
+        .preview-header,
+        .metric-value,
+        .slider-value {
+            color: #1d3d32;
+        }
+
+        .logo {
+            color: #ffffff;
+            font-size: 28px;
+            font-weight: 800;
+            line-height: 1;
+        }
+
+        .header p,
+        .form-group label,
+        .metric-label,
+        .placeholder,
+        .info-box {
+            color: #3f4b55;
+        }
+
+        .nav-links a {
+            color: #e7efe9;
+        }
+
+        .nav-links a:hover {
+            background: rgba(255, 255, 255, 0.12);
+            color: #ffffff;
+        }
+
+        .nav-links a.active {
+            background: #c9df85;
+            color: #1d3d32;
+        }
+
+        .controls,
+        .preview,
+        .metrics-section,
+        .metric-card,
+        .info-box,
+        .preview-body,
+        .preview-header,
+        .form-group input,
+        .form-group select {
+            background: #ffffff;
+            border-color: #d8e3cf;
+            box-shadow: 0 8px 20px rgba(21, 47, 36, 0.05);
+        }
+
+        .preview-body {
+            background: #f9fbf4;
+        }
+
+        .metric-card,
+        .info-box {
+            border-left-color: #90b351;
+        }
+
+        .btn {
+            border: 1px solid #b6cd72;
+        }
+
+        .btn-primary,
+        .btn-secondary,
+        .btn-success {
+            background: #c9df85;
+            color: #1d3d32;
+        }
+
+        .btn-primary:hover,
+        .btn-secondary:hover,
+        .btn-success:hover {
+            background: #b9d369;
+        }
+
+        .status.success {
+            background: #ecf6d8;
+            color: #274f3f;
+            border-color: #9fbf64;
+        }
+
+        .status.info {
+            background: #eef6e3;
+            color: #274f3f;
+            border-color: #a5c373;
+        }
+
+        .status.error {
+            background: #fff0ef;
+            color: #8a2d2d;
+            border-color: #d88f8f;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <div class="navbar-container">
+            <div class="logo">🎯 Pixel</div>
+            <div class="nav-links">
+                <a href="/">Home</a>
+                <a href="/processor" class="active">Processor</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Processing controls: upload, threshold, and action buttons -->
+        <div class="header">
+            <h1>Image Processor</h1>
+            <p>Upload, process, and download segmented images with pixel-level accuracy</p>
+        </div>
+
+        <div class="controls">
+            <div class="control-group">
+                <div class="form-group" style="grid-column: 1 / -1;">
+                    <label for="imageInput">Upload Image</label>
+                    <input type="file" id="imageInput" accept=".jpg,.jpeg,.png,.bmp,.webp">
+                </div>
+
+                <div style="display: flex; gap: 12px; align-items: Center; grid-column: 1 / -1;">
+                    <div class="form-group" style="flex: 1;">
+                        <label for="confidence">Confidence Threshold</label>
+                        <div class="slider-group">
+                            <input type="range" id="confidence" min="0.1" max="0.95" step="0.05" value="0.3">
+                            <span class="slider-value" id="confidenceValue">0.30</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="button-group" style="grid-column: 1 / -1;">
+                    <button class="btn btn-primary" id="processBtn" disabled>Process Image</button>
+                    <button class="btn btn-secondary" id="heatmapBtn" disabled>Generate Heatmap</button>
+                    <button class="btn btn-success" id="downloadBtn" disabled>Download Result</button>
+                </div>
+            </div>
+
+            <div id="status" class="status"></div>
+        </div>
+
+        <!-- Side-by-side image preview panes -->
+        <div class="preview-section">
+            <div class="preview">
+                <div class="preview-header">Input Image</div>
+                <div class="preview-body" id="inputPreview">
+                    <div class="placeholder">Upload an image to view here</div>
+                </div>
+            </div>
+
+            <div class="preview">
+                <div class="preview-header">Output Image</div>
+                <div class="preview-body" id="outputPreview">
+                    <div class="placeholder">Processed output will appear here</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Metric cards shown after successful model inference -->
+        <div class="metrics-section" id="metricsSection">
+            <div class="metrics-grid" id="metricsGrid">
+                <div class="metric-card">
+                    <div class="metric-label">Objects Detected</div>
+                    <div class="metric-value" id="metricObjectsDetected">0</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Objects After Filter</div>
+                    <div class="metric-value" id="metricObjectsFilter">0</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Model Accuracy</div>
+                    <div class="metric-value" id="metricAccuracy">0<span class="metric-unit">%</span></div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Avg Confidence</div>
+                    <div class="metric-value" id="metricAvgConf">0.00</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Max Confidence</div>
+                    <div class="metric-value" id="metricMaxConf">0.00</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Mask Coverage</div>
+                    <div class="metric-value" id="metricCoverage">0<span class="metric-unit">%</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Shared state for currently uploaded file and latest processed result.
+        let uploadedFile = null;
+        let processedOutput = null;
+
+        const imageInput = document.getElementById('imageInput');
+        const processBtn = document.getElementById('processBtn');
+        const heatmapBtn = document.getElementById('heatmapBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const confidenceSlider = document.getElementById('confidence');
+        const confidenceValue = document.getElementById('confidenceValue');
+        const inputPreview = document.getElementById('inputPreview');
+        const outputPreview = document.getElementById('outputPreview');
+        const statusBox = document.getElementById('status');
+        const metricsSection = document.getElementById('metricsSection');
+
+        // Keep confidence text in sync with slider value.
+        confidenceSlider.addEventListener('input', (e) => {
+            confidenceValue.textContent = parseFloat(e.target.value).toFixed(2);
+        });
+
+        // Upload selected image to backend and show instant local preview.
+        imageInput.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            uploadedFile = file;
+            processedOutput = null;
+            processBtn.disabled = false;
+            heatmapBtn.disabled = false;
+            downloadBtn.disabled = true;
+            metricsSection.classList.remove('show');
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                inputPreview.innerHTML = `<img src="${event.target.result}" alt="Input">`;
+            };
+            reader.readAsDataURL(file);
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                showStatus('Uploading image...', 'info');
+                const response = await fetch('/api/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    uploadedFile.filepath = data.path;
+                    showStatus('Image uploaded successfully', 'success');
+                } else {
+                    showStatus('Upload failed: ' + data.error, 'error');
+                    processBtn.disabled = true;
+                }
+            } catch (error) {
+                showStatus('Upload error: ' + error.message, 'error');
+                processBtn.disabled = true;
+            }
+        });
+
+        // Request segmentation inference and render output + metrics.
+        processBtn.addEventListener('click', async () => {
+            if (!uploadedFile || !uploadedFile.filepath) {
+                showStatus('Please upload an image first', 'error');
+                return;
+            }
+
+            const confidence = parseFloat(confidenceSlider.value);
+
+            try {
+                processBtn.disabled = true;
+                showStatus('Processing image... <span class="spinner"></span>', 'info');
+
+                const response = await fetch('/api/process', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        filepath: uploadedFile.filepath,
+                        confidence: confidence
+                    })
+                });
+
+                const data = await response.json();
+                console.log('Process response:', data);
+                
+                if (data.success) {
+                    processedOutput = data;
+                    console.log('Preview URL:', data.preview_url);
+                    
+                    // Add error handler to image
+                    const img = new Image();
+                    img.onload = function() {
+                        console.log('Image loaded successfully');
+                        outputPreview.innerHTML = `<img src="${data.preview_url}?t=${Date.now()}" alt="Output" style="max-width:100%; max-height:100%; border-radius:4px;">`;
+                    };
+                    img.onerror = function() {
+                        console.error('Failed to load image:', data.preview_url);
+                        outputPreview.innerHTML = `<div class="placeholder" style="color: #fc8181;">Error loading image: Check console for details</div>`;
+                        showStatus('Image loaded but display failed. Check browser console.', 'error');
+                    };
+                    img.src = data.preview_url + '?t=' + Date.now();
+                    
+                    downloadBtn.disabled = false;
+                    
+                    // Display metrics
+                    if (data.metrics) {
+                        displayMetrics(data.metrics);
+                    }
+                    
+                    showStatus(`Processing complete at confidence ${confidence.toFixed(2)}`, 'success');
+                } else {
+                    showStatus('Processing failed: ' + data.error, 'error');
+                }
+            } catch (error) {
+                console.error('Processing error:', error);
+                showStatus('Processing error: ' + error.message, 'error');
+            } finally {
+                processBtn.disabled = false;
+            }
+        });
+
+        // Request heatmap generation using current uploaded source image.
+        heatmapBtn.addEventListener('click', async () => {
+            if (!uploadedFile || !uploadedFile.filepath) {
+                showStatus('Please upload an image first', 'error');
+                return;
+            }
+
+            try {
+                heatmapBtn.disabled = true;
+                showStatus('Generating color heatmap... <span class="spinner"></span>', 'info');
+
+                const response = await fetch('/api/heatmap', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        filepath: uploadedFile.filepath,
+                        alpha: 0.45
+                    })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    processedOutput = data;
+                    outputPreview.innerHTML = `<img src="${data.preview_url}?t=${Date.now()}" alt="Heatmap Output" style="max-width:100%; max-height:100%; border-radius:4px;">`;
+                    downloadBtn.disabled = false;
+                    metricsSection.classList.remove('show');
+
+                    const stats = data.heatmap_stats || {};
+                    showStatus(
+                        `Heatmap ready | Mean intensity: ${stats.mean_intensity ?? 'N/A'} | Hot regions: ${stats.hot_pixel_ratio ?? 'N/A'}%`,
+                        'success'
+                    );
+                } else {
+                    showStatus('Heatmap generation failed: ' + data.error, 'error');
+                }
+            } catch (error) {
+                showStatus('Heatmap error: ' + error.message, 'error');
+            } finally {
+                heatmapBtn.disabled = false;
+            }
+        });
+
+        // Download last generated output file from backend.
+        downloadBtn.addEventListener('click', async () => {
+            if (!processedOutput) {
+                showStatus('No processed image to download', 'error');
+                return;
+            }
+
+            try {
+                const filename = processedOutput.output_filename;
+                const response = await fetch(`/api/download/${filename}`);
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+                showStatus(`Download started: ${filename}`, 'success');
+            } catch (error) {
+                showStatus('Download error: ' + error.message, 'error');
+            }
+        });
+
+        function showStatus(message, type) {
+            // Standardized status banner (success/error/info).
+            statusBox.className = `status ${type}`;
+            statusBox.innerHTML = message;
+        }
+
+        function displayMetrics(metrics) {
+            // Populate metric cards after a successful inference call.
+            document.getElementById('metricObjectsDetected').textContent = metrics.total_objects_detected;
+            document.getElementById('metricObjectsFilter').textContent = metrics.objects_after_filter;
+            document.getElementById('metricAccuracy').innerHTML = metrics.model_accuracy.toFixed(1) + '<span class="metric-unit">%</span>';
+            document.getElementById('metricAvgConf').textContent = metrics.avg_confidence.toFixed(3);
+            document.getElementById('metricMaxConf').textContent = metrics.max_confidence.toFixed(3);
+            document.getElementById('metricCoverage').innerHTML = metrics.total_mask_coverage.toFixed(2) + '<span class="metric-unit">%</span>';
+            
+            document.getElementById('metricsSection').classList.add('show');
+        }
+
+        // Keep nav highlight consistent on click.
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', function() {
+                document.querySelectorAll('.nav-links a').forEach(l => l.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>
