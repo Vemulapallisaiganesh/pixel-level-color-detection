@@ -4,7 +4,6 @@ from flask import Flask, render_template, request, jsonify, send_file
 import cv2
 import numpy as np
 from werkzeug.utils import secure_filename
-from main import process_image
 
 # Flask web server for upload, segmentation processing, heatmap generation, and file download.
 app = Flask(__name__)
@@ -89,6 +88,9 @@ def process():
         return jsonify({'error': 'File not found'}), 404
     
     try:
+        # Import YOLO pipeline only when needed to keep serverless cold-start and build footprint lower.
+        from main import process_image
+
         filename = os.path.basename(filepath)
         name, ext = os.path.splitext(filename)
         output_path = os.path.join(app.config['OUTPUT_FOLDER'], f"{name}_result.jpg")
@@ -132,6 +134,10 @@ def process():
                 'total_mask_coverage': round(metrics['total_mask_coverage'], 2),
             }
         })
+    except ImportError:
+        return jsonify({
+            'error': 'Segmentation runtime is not available in this deployment. Use local runtime or external inference service.'
+        }), 503
     except Exception as e:
         import traceback
         traceback.print_exc()

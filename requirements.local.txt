@@ -1,0 +1,7 @@
+# Full local environment (includes YOLO segmentation runtime)
+flask
+werkzeug
+ultralytics
+opencv-python
+numpy
+pillow

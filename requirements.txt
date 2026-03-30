@@ -1,5 +1,5 @@
-ultralytics
-opencv-python
+flask
+werkzeug
+opencv-python-headless
 numpy
 pillow
-tk
